@@ -2,8 +2,7 @@
 Projekt von Raphael Härtel
 
 ## Start application
-The project can be started with the Script for Windows.
-`./start.bat`
+The application can be started with the Script for Windows `./start.bat`.
 
 Or with the following to lines:
 - `deno run --allow-read --allow-write --unstable ./tools/builder.ts` (build frontend .js files)
