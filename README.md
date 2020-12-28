@@ -7,7 +7,7 @@ The project can be started with the Script for Windows.
 
 Or with the following to lines:
 - `deno run --allow-read --allow-write --unstable ./tools/builder.ts` (build frontend .js files)
-- `deno run --allow-net --allow-read ./src/webserver.ts` (starts the webserver)
+- `deno run --allow-net --allow-read ./backend/controller/webserver.ts` (starts the webserver)
 
 ### Open application
 When you started the application it can be open with `http://localhost:8000`.
