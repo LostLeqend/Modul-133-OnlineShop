@@ -1,7 +1,7 @@
 import {Product} from "../../backend/model/product.ts";
 
 export async function loadAllProducts() {
-    const response = await fetch("/api/products");
+    const response = await fetch("http://localhost:8000/api/products");
     const products: Product[] = await response.json();
 
     const list = document.getElementById("list-products");

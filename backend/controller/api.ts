@@ -94,30 +94,48 @@ const carts: ShoppingCart[] = [];
 
 const router = new Router();
 router
-    .get("/api/products", context => context.response.body = products)
-    .get("/api/products/:id", async (context) => context.response.body = products.find(x => x.id == context.params.id))
+    .get("/api/products", context => {
+        context.response.body = products;
+    })
+    .get("/api/products/:id", async (context) => {
+        context.response.body = products.find(x => x.id == context.params.id);
+    })
     .get("/api/cart", async (context) => {
         const sessionId = await getSessionId(context);
         context.response.body = carts.find(x => x.id == sessionId);
     })
     .get("/api/cart/cost", async (context) => {
         const sessionId = await getSessionId(context);
-        const cart: ShoppingCart = carts.find(x => x.id == sessionId);
-
-        let price = 0;
-        for (const product: Product in cart.products) {
-            price += product.specialOffer ?? product.normalPrice;
-        }
-
-        context.response.body = price;
-    })
-    .post("/api/cart/update", async (context) => {
-        const sessionId = await getSessionId();
-        const product = products.find(x => x.id == context.params.id);
         const cart = carts.find(x => x.id == sessionId);
 
+        if (cart == undefined || cart.products == undefined)
+            return;
+
+        let price = 0;
+        cart.products.forEach(product => {
+            price += product.specialOffer ?? product.normalPrice;
+        });
+
+        context.response.body = Math.round((price + Number.EPSILON) * 100) / 100;
+    })
+    .post("/api/cart/update", async (context) => {
+        if (!context.request.hasBody){
+            context.response.status = 400;
+            return;
+        }
+
+        const sessionId = await getSessionId(context);
+        const productId = JSON.parse(await context.request.body().value);
+        const product = products.find(x => x.id == productId);
+        const cart = carts.find(x => x.id == sessionId);
+
+        if (cart == undefined || product == undefined)
+        {
+            context.response.status = 400;
+            return;
+        }
+
         const productAmount = cart.productAmount.get(product.id);
-        console.log(productAmount);
 
         if (productAmount) {
             cart.productAmount.set(product.id, productAmount + 1);
@@ -129,25 +147,33 @@ router
         context.response.status = 200;
     })
     .delete("api/cart", async (context) => {
-        const sessionId = await getSessionId();
-        const cart: ShoppingCart = carts.find(x => x.id == sessionId);
+        const sessionId = await getSessionId(context);
+        const cart = carts.find(x => x.id == sessionId);
+
+        if (cart == undefined){
+            context.response.status = 400;
+            return;
+        }
+
         cart.products = [];
         cart.productAmount = new Map<string, number>();
     })
     .delete("api/cart/:id", async (context) => {
-        const sessionId = await getSessionId();
+        const sessionId = await getSessionId(context);
         const product = products.find(x => x.id == context.params.id);
         const cart = carts.find(x => x.id == sessionId);
 
-        const productAmount = cart.productAmount.get(product.id);
+        if (cart == undefined || product == undefined)
+            return;
 
+        const productAmount = cart.productAmount.get(product.id);
         if (productAmount) {
-            cart.productAmount.set(product.id, productAmount-1);
+            cart.productAmount.set(product.id, productAmount - 1);
         } else {
             context.response.status = 400;
         }
         console.log(cart.products);
-        cart.products.splice(x => x.id == product.id);
+        cart.products.splice(cart.products.indexOf(product), 1);
         console.log(cart.products);
 
         context.response.status = 200;
@@ -158,8 +184,7 @@ async function getSessionId(context: any): Promise<string> {
 
     if (!sessionId) {
         sessionId = v4.generate();
-        console.log(sessionId);
-        await context.state.session.set(`sessionId`);
+        await context.state.session.set(`sessionId`, sessionId);
 
         carts.push({id: sessionId, products: [], productAmount: new Map<string, number>()})
     }
