@@ -3,7 +3,7 @@ const [diagnostics_appJs, appJs] = await Deno.bundle(
 );
 await Deno.writeTextFile("./frontend/build.app.js", appJs);
 
-const [diagnostics_shoppingCartJs, shoppingCartJs] = await Deno.bundle(
-    "./frontend/scripts/ShoppingCart.ts"
+const [diagnostics_productDetailJs, productDetailJs] = await Deno.bundle(
+    "./frontend/scripts/ProductDetail.ts"
 );
-await Deno.writeTextFile("./frontend/scripts/ShoppingCart.js", shoppingCartJs);
+await Deno.writeTextFile("./frontend/scripts/ProductDetail.js", productDetailJs);
