@@ -26,7 +26,7 @@ export async function loadAllProducts() {
                                             <div class="card-body">
                                                 <h5 class="card-title">${product.productName}</h5>
                                                 <span class="card-text">${product.specialOffer}</span>
-                                                <span class="card-text">${product.normalPrice}</span>
+                                                <span class="card-text normal-price">${product.normalPrice}</span>
                                             </div>
                                         </div>
                                     </a>`;
