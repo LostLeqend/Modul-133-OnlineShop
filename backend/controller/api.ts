@@ -1,15 +1,11 @@
 import {Router} from "https://deno.land/x/oak@v6.4.0/mod.ts";
 import {Session} from "https://deno.land/x/session@1.1.0/mod.ts";
 import {Product} from "../model/product.ts";
+import {ShoppingCart} from "../model/shopping-cart.ts";
 
 const session = new Session({framework: "oak"});
 await session.init();
 export const usableSession = session.use()(session);
-
-async function getProducts() {
-    console.log(await Deno.readTextFile('./products.json'));
-    return JSON.parse(await Deno.readTextFile('./products.json'));
-}
 
 const products: Product[] = [
     {
@@ -93,6 +89,7 @@ const products: Product[] = [
         "description": "Bertolli Olivenöl extra vergine originale"
     }
 ];
+const carts: ShoppingCart[] = [];
 
 const router = new Router();
 router
@@ -101,6 +98,40 @@ router
     })
     .get("/api/products/:id", async context => {
         context.response.body = products.find(x => x.id == context.params.id);
+    })
+    .get("/api/cart", async context => {
+        context.response.body = carts;
+    })
+    .get("/api/cart:id", async context => {
+        context.response.body = carts.find(x => x.id == context.params.id);
+    })
+    .get("/api/cart/cost", async context => {
+        context.response.body = carts;
+    })
+    .post("/api/cart/update", async (context) => {
+        if (!context.request.hasBody) {
+            console.log("test1");
+            context.response.status = 401;
+            return;
+        }
+
+        console.log("test");
+        const productId = JSON.parse(await context.request.body().value);
+        const product = products.find(x => x.id == productId);
+        const cart = carts.find(x => x.id == productId);
+
+        if (cart == undefined || product == undefined) {
+            context.response.status = 402;
+            return;
+        }
+
+        console.log(cart.productAmount.get(product.id));
+        //if(cart.productAmount.get(product.id);)
+
+        context.response.status = 200;
+    })
+    .delete("api/cart/:id", async context => {
+
     });
 
 export const api = router.routes();

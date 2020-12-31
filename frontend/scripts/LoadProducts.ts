@@ -6,10 +6,9 @@ export async function loadAllProducts() {
 
     const list = document.getElementById("list-products");
 
-    console.log(list);
     for (const product of products) {
         list.innerHTML += `<li>
-                                <a href="./ProductView.html?personId=${product.id}">
+                                <a href="./views/ProductDetail.html?productId=${product.id}">
                                 ${product.productName} ${product.description} 
                             </li>`;
     }
