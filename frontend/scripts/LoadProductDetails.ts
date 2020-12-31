@@ -9,5 +9,5 @@ export async function loadProductDetail() {
 
     document.querySelector("h1").innerText = product.productName;
     document.querySelector("span").innerText = product.description;
-    document.querySelector("img").src = `./../assets/${product.imageName}`;
+    document.getElementById("image-product").src = `./../assets/${product.imageName}`;
 }

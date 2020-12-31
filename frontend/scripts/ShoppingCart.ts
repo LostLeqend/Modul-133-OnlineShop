@@ -7,7 +7,7 @@ async function loadShoppingCart(){
 async function addToShoppingCart() {
     const productId = new URLSearchParams(window.location.search).get("productId");
     console.log(productId);
-    const response = await fetch('http://localhost:8000/api/cart/update', {
+    const response = await fetch('/api/cart/update', {
         method: 'POST',
         mode: `no-cors`,
         body: JSON.stringify(productId),
