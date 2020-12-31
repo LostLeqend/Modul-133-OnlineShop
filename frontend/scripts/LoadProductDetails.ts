@@ -7,7 +7,8 @@ export async function loadProductDetail() {
 
     console.log(product);
 
-    document.querySelector("h1").innerText = product.productName;
-    document.querySelector("span").innerText = product.description;
+    document.querySelector("h3").innerText = product.productName;
+    document.getElementById("label-productDescription").innerText = product.description;
+    document.getElementById("label-productPrice").innerText = product.specialOffer ?? product.normalPrice;
     document.getElementById("image-product").src = `./../assets/${product.imageName}`;
 }

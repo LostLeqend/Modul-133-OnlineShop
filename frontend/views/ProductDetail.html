@@ -34,15 +34,19 @@
     </nav>
 </header>
 
-<main>
-    <article>
-        <h1></h1>
-        <span></span>
-        <img id="image-product">
-    </article>
+<main class="container-fluid">
+    <div class="row">
+        <div class="col">
+            <img class="img-fluid" id="image-product">
+        </div>
+        <article class="col-8">
+            <h3></h3>
+            <p id="label-productDescription"></p>
+            <p id="label-productPrice"></p>
+            <button class="btn btn-light" id="btn-addToCart">Add to shopping cart</button>
+        </article>
+    </div>
 </main>
-
-<button id="btn-addToCart">Add to shopping cart</button>
 
 <script type="module">
     import {loadProductDetail} from "../build.app.js";
