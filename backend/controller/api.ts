@@ -98,86 +98,88 @@ router
         context.response.body = products;
     })
     .get("/api/products/:id", async (context) => {
-        context.response.body = products.find(x => x.id == context.params.id);
+        context.response.body = getProduct(context.params.id!);
     })
     .get("/api/cart", async (context) => {
         const sessionId = await getSessionId(context);
-        context.response.body = carts.find(x => x.id == sessionId);
+        const cart = getCart(sessionId);
+
+        let simplifiedCart: [Product, number][] = [];
+
+        cart.productAmount.forEach((value: number, key: string) => {
+            const product = getProduct(key);
+            simplifiedCart.push([product, value]);
+        });
+
+        context.response.body = simplifiedCart;
     })
     .get("/api/cart/cost", async (context) => {
         const sessionId = await getSessionId(context);
-        const cart = carts.find(x => x.id == sessionId);
-
-        if (cart == undefined || cart.products == undefined)
-            return;
+        const cart = getCart(sessionId);
 
         let price = 0;
         cart.products.forEach(product => {
             price += product.specialOffer ?? product.normalPrice;
         });
 
-        context.response.body = Math.round((price + Number.EPSILON) * 100) / 100;
+        context.response.body = Math.round(price * 100) / 100;
     })
     .post("/api/cart/update", async (context) => {
-        if (!context.request.hasBody){
+        if (!context.request.hasBody) {
             context.response.status = 400;
             return;
         }
+
+        const productId = JSON.parse(await context.request.body().value);
+        const product = getProduct(productId);
 
         const sessionId = await getSessionId(context);
-        const productId = JSON.parse(await context.request.body().value);
-        const product = products.find(x => x.id == productId);
-        const cart = carts.find(x => x.id == sessionId);
-
-        if (cart == undefined || product == undefined)
-        {
-            context.response.status = 400;
-            return;
-        }
-
+        const cart = getCart(sessionId);
         const productAmount = cart.productAmount.get(product.id);
 
-        if (productAmount) {
-            cart.productAmount.set(product.id, productAmount + 1);
-        } else {
+        if (productAmount == undefined) {
             cart.productAmount.set(product.id, 1);
+        } else {
+            cart.productAmount.set(product.id, productAmount + 1);
         }
         cart.products.push(product);
 
         context.response.status = 200;
     })
-    .delete("api/cart", async (context) => {
+    .delete("/api/cart/delete/:id", async (context) => {
         const sessionId = await getSessionId(context);
-        const cart = carts.find(x => x.id == sessionId);
+        const cart = getCart(sessionId);
 
-        if (cart == undefined){
-            context.response.status = 400;
-            return;
-        }
-
-        cart.products = [];
-        cart.productAmount = new Map<string, number>();
-    })
-    .delete("api/cart/:id", async (context) => {
-        const sessionId = await getSessionId(context);
-        const product = products.find(x => x.id == context.params.id);
-        const cart = carts.find(x => x.id == sessionId);
-
-        if (cart == undefined || product == undefined)
-            return;
-
+        const product = getProduct(context.params.id!);
         const productAmount = cart.productAmount.get(product.id);
-        if (productAmount) {
+
+        cart.products.splice(cart.products.indexOf(product), 1);
+
+        if (productAmount === 1) {
+            cart.productAmount.delete(product.id);
+        } else if (productAmount) {
             cart.productAmount.set(product.id, productAmount - 1);
         } else {
             context.response.status = 400;
         }
-        console.log(cart.products);
-        cart.products.splice(cart.products.indexOf(product), 1);
-        console.log(cart.products);
 
         context.response.status = 200;
+    })
+    .get("/api/cart/checkout", async (context) => {
+        const sessionId = await getSessionId(context);
+        const cart = getCart(sessionId);
+
+        cart.products = [];
+        cart.productAmount = new Map<string, number>();
     });
+
+function getCart(sessionId: string): ShoppingCart {
+    return carts.find(x => x.id == sessionId)!;
+}
+
+function getProduct(productId: string): Product {
+    return products.find((product) => product.id == productId)!;
+}
 
 async function getSessionId(context: any): Promise<string> {
     let sessionId = await context.state.session.get(`sessionId`);

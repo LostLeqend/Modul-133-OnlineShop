@@ -18,7 +18,6 @@ export async function loadAllProducts() {
             rowCount++;
 
         const row = document.getElementById("Row" + rowCount);
-        console.log(row);
 
         row.innerHTML += ` <a class="col" href="./views/ProductDetail.html?productId=${product.id}">
                                         <div class="card" style="width: 20rem;">

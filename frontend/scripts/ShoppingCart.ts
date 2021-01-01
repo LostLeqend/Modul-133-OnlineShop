@@ -1,25 +1,30 @@
+import {Product} from "../../backend/model/product.ts";
+
 const api = "http://localhost:8000/api";
 
-async function loadShoppingCart() {
-    const productId = new URLSearchParams(window.location.search).get("productId");
-    const response = await fetch(`/api/cart?${productId}`);
-    const shoppingCart = response.json();
+export async function getShoppingCart(): Promise<[Product, number][]> {
+    const response = await fetch(`${api}/cart`);
+    return await response.json();
 }
 
 export async function updateShoppingCart() {
     const response = await fetch(`${api}/cart/cost`);
-    const cartCost: number = await response.json();
-
-    document.getElementById("label-price").innerHTML = cartCost;
+    document.getElementById("label-price").innerHTML = await response.json();
 }
 
-export async function addToShoppingCart() {
-    const productId = new URLSearchParams(window.location.search).get("productId");
-
-    const response = await fetch(`${api}/cart/update`, {
+export async function addToShoppingCart(productId) {
+    await fetch(`${api}/cart/update`, {
         method: 'POST',
         mode: `no-cors`,
         body: JSON.stringify(productId)
+    });
+
+    await updateShoppingCart();
+}
+
+export async function removeFromShoppingCart(productId){
+    await fetch(`${api}/cart/delete/` + productId, {
+        method: 'DELETE',
     });
 
     await updateShoppingCart();
