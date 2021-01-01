@@ -29,3 +29,8 @@ export async function removeFromShoppingCart(productId){
 
     await updateShoppingCart();
 }
+
+export async function checkoutValidation(){
+    await fetch(`${api}/cart/checkout`);
+    await updateShoppingCart();
+}

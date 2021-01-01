@@ -34,7 +34,25 @@
     </nav>
 </header>
 
-<main>
+<main class="container-fluid">
+    <form id="form-checkout">
+        <div class="mb-2">
+            <label for="input-firstname" class="form-label">firstname</label>
+            <input type="text" class="form-control" id="input-firstname" placeholder="joe" required>
+        </div>
+        <div class="mb-2">
+            <label for="input-lastname" class="form-label">lastname</label>
+            <input type="text" class="form-control" id="input-lastname" placeholder="cardigan" required>
+        </div>
+        <div class="mb-2">
+            <label for="input-email" class="form-label">email address</label>
+            <input type="email" class="form-control" id="input-email" placeholder="name@example.com" required>
+        </div>
+        <div class="col-auto">
+            <input type="submit" class="btn btn-warning btn-right" value="Checkout">
+            <a class="btn btn-warning btn-right me-2" href="./Cart.html">Back</a>
+        </div>
+    </form>
 </main>
 
 <script type="module">
@@ -44,5 +62,7 @@
     //loadCheckout();
     updateShoppingCart();
 </script>
+<script src="../scripts/Checkout.js"></script>
+
 </body>
 </html>

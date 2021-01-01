@@ -171,6 +171,7 @@ router
 
         cart.products = [];
         cart.productAmount = new Map<string, number>();
+        context.response.status = 200;
     });
 
 function getCart(sessionId: string): ShoppingCart {

@@ -7,6 +7,12 @@ export async function loadShoppingCart() {
         cart = response;
     });
 
+    if (cart.length == 0) {
+        document.getElementById("a-redirectToCheckout").className += " disabled";
+    } else {
+        document.getElementById("a-redirectToCheckout").className.replace("disabled", "");
+    }
+
     const table = document.getElementById("tb-products");
     table.innerHTML = "";
 
@@ -19,14 +25,14 @@ export async function loadShoppingCart() {
 
         table.innerHTML += `
                             <tr>
-                                <td>${product[0].productName}</td>
-                                <td>${pricePerItem}</td>
-                                <td>
+                                <td class="w-25">${product[0].productName}</td>
+                                <td class="w-25">${pricePerItem}</td>
+                                <td class="w-25">
                                     <button class="btn btn-light" id="btn-removeProduct" value="${product[0].id}">-</button>
                                     <label>${product[1]}</label>
                                     <button class="btn btn-light" id="btn-addProduct" value="${product[0].id}">+</button>
                                 </td>
-                                <td style="width: 20%!important;">${totalPerItem} CHF</td>
+                                <td class="w-25">${totalPerItem} CHF</td>
                             </tr>`
     });
 
@@ -40,7 +46,7 @@ export async function loadShoppingCart() {
 
     let removeProductButtons = document.querySelectorAll('#btn-removeProduct');
     removeProductButtons.forEach(button => {
-       button.addEventListener('click', removeProduct);
+        button.addEventListener('click', removeProduct);
     });
 
     let addProductButtons = document.querySelectorAll('#btn-addProduct');
@@ -49,12 +55,12 @@ export async function loadShoppingCart() {
     });
 }
 
-async function removeProduct(clickEvent: MouseEvent){
+async function removeProduct(clickEvent: MouseEvent) {
     await removeFromShoppingCart(clickEvent.composedPath()[0].value);
     await loadShoppingCart();
 }
 
-async function addProduct(clickEvent: MouseEvent){
+async function addProduct(clickEvent: MouseEvent) {
     await addToShoppingCart(clickEvent.composedPath()[0].value);
     await loadShoppingCart();
 }

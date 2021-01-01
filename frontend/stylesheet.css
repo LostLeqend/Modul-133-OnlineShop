@@ -4,7 +4,12 @@ a{
 }
 
 a:hover{
-   color: mediumpurple;
+   color: #ffc107;
+}
+
+a.disabled {
+   pointer-events: none;
+   cursor: default;
 }
 
 .row{
@@ -16,7 +21,6 @@ a:hover{
    text-decoration-color: red;
 }
 
-#btn-checkout{
+.btn-right{
    float: right;
-   margin: 1rem;
 }
