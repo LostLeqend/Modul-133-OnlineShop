@@ -165,14 +165,34 @@ router
 
         context.response.status = 200;
     })
-    .get("/api/cart/checkout", async (context) => {
+    .put("/api/cart/checkout", async (context) => {
+        if (!context.request.hasBody) {
+            context.response.body = JSON.stringify("No user data received");
+            context.response.status = 400;
+            return;
+        }
+
+        const userData = await context.request.body();
+        const user: { firstname: string, lastname: string, email: string } = JSON.parse(await userData.value);
+
         const sessionId = await getSessionId(context);
         const cart = getCart(sessionId);
 
-        cart.products = [];
-        cart.productAmount = new Map<string, number>();
-        context.response.status = 200;
+        const validationMessage = isUserValid(user);
+
+        if (validationMessage === "") {
+            cart.products = [];
+            cart.productAmount = new Map<string, number>();
+
+            context.response.body = JSON.stringify("");
+            context.response.status = 200;
+        } else {
+            context.response.body = JSON.stringify(validationMessage);
+            context.response.status = 406;
+        }
     });
+
+export const api = router.routes();
 
 function getCart(sessionId: string): ShoppingCart {
     return carts.find(x => x.id == sessionId)!;
@@ -195,4 +215,30 @@ async function getSessionId(context: any): Promise<string> {
     return sessionId;
 }
 
-export const api = router.routes();
+function isUserValid(user: { firstname: string, lastname: string, email: string }): string {
+    if (user.firstname == undefined || user.firstname.trim().length == 0)
+        return "Enter firstname";
+
+    if (user.lastname == undefined || user.lastname.trim().length == 0)
+        return "Enter lastname";
+
+    if (user.email == undefined || user.email.trim().length == 0)
+        return "Enter email";
+
+    const atLocation = user.email.lastIndexOf("@");
+    const dotLocation = user.email.lastIndexOf(".");
+
+    if(!(atLocation > 0))
+        return "Invalid email (@ missing)";
+
+    if(!(dotLocation > 0))
+        return "Invalid email (. missing)";
+
+    //at needs to be at with one char in between in front of the last dot
+    //the dot cant be the last char
+    console.log(dotLocation, user.email.length-1);
+    if(atLocation+1 >= dotLocation || dotLocation >= user.email.length-1)
+        return "Invalid email format";
+
+    return "";
+}

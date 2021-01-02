@@ -12,7 +12,7 @@ export async function updateShoppingCart() {
     document.getElementById("label-price").innerHTML = await response.json();
 }
 
-export async function addToShoppingCart(productId) {
+export async function addToShoppingCart(productId: string) {
     await fetch(`${api}/cart/update`, {
         method: 'POST',
         mode: `no-cors`,
@@ -22,7 +22,7 @@ export async function addToShoppingCart(productId) {
     await updateShoppingCart();
 }
 
-export async function removeFromShoppingCart(productId){
+export async function removeFromShoppingCart(productId: string){
     await fetch(`${api}/cart/delete/` + productId, {
         method: 'DELETE',
     });
@@ -30,7 +30,12 @@ export async function removeFromShoppingCart(productId){
     await updateShoppingCart();
 }
 
-export async function checkoutValidation(){
-    await fetch(`${api}/cart/checkout`);
+export async function checkoutValidation(user: {firstname:string, lastname:string, email: string}){
+    const response = await fetch(`${api}/cart/checkout`, {
+        method: 'PUT',
+        body: JSON.stringify(user)
+    });
+
     await updateShoppingCart();
+    return await response.json();
 }
