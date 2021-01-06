@@ -9,7 +9,6 @@ await session.init();
 export const usableSession = session.use()(session);
 
 const products: Product[] = JSON.parse(await Deno.readTextFile("./backend/model/products.json"));
-const carts: ShoppingCart[] = [];
 
 const router = new Router();
 router
@@ -20,8 +19,7 @@ router
         context.response.body = getProduct(context.params.id!);
     })
     .get("/api/cart", async (context) => {
-        const sessionId = await getSessionId(context);
-        const cart = getCart(sessionId);
+        const cart = await getShoppingCart(context);
 
         let simplifiedCart: [Product, number][] = [];
 
@@ -33,8 +31,7 @@ router
         context.response.body = simplifiedCart;
     })
     .get("/api/cart/cost", async (context) => {
-        const sessionId = await getSessionId(context);
-        const cart = getCart(sessionId);
+        const cart = await getShoppingCart(context);
 
         let price = 0;
         cart.products.forEach(product => {
@@ -52,8 +49,7 @@ router
         const productId = JSON.parse(await context.request.body().value);
         const product = getProduct(productId);
 
-        const sessionId = await getSessionId(context);
-        const cart = getCart(sessionId);
+        const cart = await getShoppingCart(context);
         const productAmount = cart.productAmount.get(product.id);
 
         if (productAmount == undefined) {
@@ -66,8 +62,7 @@ router
         context.response.status = 200;
     })
     .delete("/api/cart/delete/:id", async (context) => {
-        const sessionId = await getSessionId(context);
-        const cart = getCart(sessionId);
+        const cart = await getShoppingCart(context);
 
         const product = getProduct(context.params.id!);
         const productAmount = cart.productAmount.get(product.id);
@@ -94,8 +89,7 @@ router
         const userData = await context.request.body();
         const user: { firstname: string, lastname: string, email: string } = JSON.parse(await userData.value);
 
-        const sessionId = await getSessionId(context);
-        const cart = getCart(sessionId);
+        const cart = await getShoppingCart(context);
 
         const validationMessage = isUserValid(user);
 
@@ -113,25 +107,19 @@ router
 
 export const api = router.routes();
 
-function getCart(sessionId: string): ShoppingCart {
-    return carts.find(x => x.id == sessionId)!;
-}
-
 function getProduct(productId: string): Product {
     return products.find((product) => product.id == productId)!;
 }
 
-async function getSessionId(context: any): Promise<string> {
-    let sessionId = await context.state.session.get(`sessionId`);
+async function getShoppingCart(context: any): Promise<ShoppingCart> {
+    let shoppingCart = await context.state.session.get(`shoppingCart`);
 
-    if (!sessionId) {
-        sessionId = v4.generate();
-        await context.state.session.set(`sessionId`, sessionId);
-
-        carts.push({id: sessionId, products: [], productAmount: new Map<string, number>()})
+    if (!shoppingCart) {
+        shoppingCart = {products: [], productAmount: new Map<string, number>()};
+        await context.state.session.set(`shoppingCart`, shoppingCart);
     }
 
-    return sessionId;
+    return shoppingCart;
 }
 
 function isUserValid(user: { firstname: string, lastname: string, email: string }): string {
