@@ -21,7 +21,7 @@ export async function loadAllProducts() {
 
         row.innerHTML += ` <a class="col" href="./views/ProductDetail.html?productId=${product.id}">
                                         <div class="card" style="width: 20rem;">
-                                            <img src="./assets/${product.imageName}" class="card-img-top" alt="test">
+                                            <img src="./assets/${product.imageName}" class="card-img-top" alt="${product.imageName}">
                                             <div class="card-body">
                                                 <h5 class="card-title">${product.productName}</h5>
                                                 <span class="card-text">${product.specialOffer}</span>

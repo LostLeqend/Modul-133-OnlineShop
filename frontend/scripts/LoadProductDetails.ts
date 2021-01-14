@@ -9,4 +9,5 @@ export async function loadProductDetail() {
     document.getElementById("label-productDescription").innerText = product.description;
     document.getElementById("label-productPrice").innerText = product.specialOffer + " CHF" ?? product.normalPrice + " CHF";
     document.getElementById("image-product").src = `./../assets/${product.imageName}`;
+    document.getElementById("image-product").alt = `${product.imageName}`;
 }
